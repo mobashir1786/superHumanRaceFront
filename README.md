@@ -1,16 +1,38 @@
-# React + Vite
+# Dashboard Builder
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A React/Vite dashboard editor with draggable and resizable sections, text, images, and Chart.js bar/line charts. Layouts are fetched from and saved to the PHP/MySQL backend; the frontend does not store dashboard layouts in browser local storage.
 
-Currently, two official plugins are available:
+## Run locally
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+1. Set up the PHP/MySQL API by following the [backend setup guide](https://github.com/mobashir1786/superHumanRaceBackend#dashboard-builder-phpmysql-api).
+2. Copy `.env.example` to `.env.local` and point it to the backend API:
 
-## React Compiler
+   ```dotenv
+   VITE_DASHBOARD_API_URL=http://localhost/dashboard-server/api
+   ```
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+3. Install frontend dependencies and start Vite:
 
-## Expanding the ESLint configuration
+   ```sh
+   npm install
+   npm run dev
+   ```
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+4. Sign in using the administrator password configured on the PHP server.
+
+## Deploy frontend to Vercel
+
+Import this repository in Vercel using the Vite preset, then configure the project environment variable:
+
+```dotenv
+VITE_DASHBOARD_API_URL=https://your-php-host.example/api
+```
+
+Set that API URL for the Vercel deployment environment and redeploy. On the PHP host, allow the exact Vercel origin in `DASHBOARD_ALLOWED_ORIGINS` or the server-only `config/database.php` `allowed_origins` setting. The PHP/MySQL backend must be deployed separately; Vercel hosts this React frontend, not this LAMP API.
+
+## Validation
+
+```sh
+npm run lint
+npm run build
+```

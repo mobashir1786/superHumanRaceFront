@@ -1,8 +1,8 @@
 
-import { Save, Undo2, Redo2, LayoutDashboard, Pencil } from "lucide-react";
+import { Save, Undo2, Redo2, LayoutDashboard, Pencil, LogOut } from "lucide-react";
 import { useDashboard } from "../context/useDashboard";
 
-export default function Topbar() {
+export default function Topbar({ onLogout }) {
     const {
         saveLayout,
         saveMessage,
@@ -20,6 +20,14 @@ export default function Topbar() {
             </div>
 
             <div className="topbar-actions">
+                <button
+                    className="icon-button"
+                    onClick={onLogout}
+                    title="Sign out of dashboard"
+                >
+                    <LogOut size={16} />
+                    Sign out
+                </button>
                 {!isPreview && (
                     <>
                         <button className="icon-button" title="Undo" disabled>
