@@ -1,51 +1,45 @@
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import DashboardContext from "./dashboardContextStore";
+import { fetchDashboard, saveDashboard } from "../services/dashboardApi";
 
-const STORAGE_KEY = "dashboard-builder-layout";
 const CHART_LABELS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun"];
-
-function loadStoredLayout() {
-    try {
-        const storedLayout = localStorage.getItem(STORAGE_KEY);
-
-        if (!storedLayout) {
-            return { elements: [], message: "" };
-        }
-
-        const parsedLayout = JSON.parse(storedLayout);
-        const elements = Array.isArray(parsedLayout)
-            ? parsedLayout
-            : parsedLayout.elements;
-
-        if (!Array.isArray(elements)) {
-            throw new Error("The saved layout has an invalid format.");
-        }
-
-        return {
-            elements,
-            isPreview: !Array.isArray(parsedLayout) && parsedLayout.isPreview === true,
-            message: "",
-        };
-    } catch (error) {
-        return {
-            elements: [],
-            isPreview: false,
-            message: `Could not load the saved layout: ${error.message}`,
-        };
-    }
-}
 
 function createChartValues() {
     return CHART_LABELS.map(() => Math.floor(Math.random() * 250) + 50);
 }
 
 export function DashboardProvider({ children }) {
-    const [initialLayout] = useState(loadStoredLayout);
-    const [elements, setElements] = useState(initialLayout.elements);
+    const [elements, setElements] = useState([]);
     const [selectedId, setSelectedId] = useState(null);
-    const [saveMessage, setSaveMessage] = useState(initialLayout.message);
-    const [isPreview, setIsPreview] = useState(initialLayout.isPreview);
+    const [saveMessage, setSaveMessage] = useState("Connecting to the dashboard server...");
+    const [isPreview, setIsPreview] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
+    const [isSaving, setIsSaving] = useState(false);
+
+    useEffect(() => {
+        let active = true;
+        fetchDashboard()
+            .then((dashboard) => {
+                if (!Array.isArray(dashboard.elements)) {
+                    throw new Error("The server returned an invalid dashboard layout.");
+                }
+                if (!active) return;
+                setElements(dashboard.elements);
+                setIsPreview(dashboard.isPreview === true);
+                setSaveMessage("Dashboard loaded from MySQL.");
+            })
+            .catch((error) => {
+                if (active) setSaveMessage(`Could not load dashboard: ${error.message}`);
+            })
+            .finally(() => {
+                if (active) setIsLoading(false);
+            });
+
+        return () => {
+            active = false;
+        };
+    }, []);
 
     const addElement = (type) => {
         const id = crypto.randomUUID();
@@ -176,17 +170,20 @@ export function DashboardProvider({ children }) {
         });
     };
 
-    const saveLayout = () => {
+    const saveLayout = async () => {
+        if (isSaving) return;
+
+        setIsSaving(true);
         try {
-            localStorage.setItem(
-                STORAGE_KEY,
-                JSON.stringify({ version: 1, elements, isPreview: true })
-            );
-            setSaveMessage("Layout saved in this browser.");
+            setSaveMessage("Saving dashboard to MySQL...");
+            await saveDashboard(elements);
+            setSaveMessage("Dashboard saved to MySQL.");
             setIsPreview(true);
             setSelectedId(null);
         } catch (error) {
-            setSaveMessage(`Could not save the layout: ${error.message}`);
+            setSaveMessage(`Could not save dashboard: ${error.message}`);
+        } finally {
+            setIsSaving(false);
         }
     };
 
@@ -197,6 +194,9 @@ export function DashboardProvider({ children }) {
                 selectedId,
                 saveMessage,
                 isPreview,
+                isLoading,
+                isSaving,
+                setSaveMessage,
                 setSelectedId,
                 setIsPreview,
                 addElement,

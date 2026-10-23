@@ -3,7 +3,14 @@ import { Save, Undo2, Redo2, LayoutDashboard, Pencil } from "lucide-react";
 import { useDashboard } from "../context/useDashboard";
 
 export default function Topbar() {
-    const { saveLayout, saveMessage, isPreview, setIsPreview } = useDashboard();
+    const {
+        saveLayout,
+        saveMessage,
+        isPreview,
+        isLoading,
+        isSaving,
+        setIsPreview,
+    } = useDashboard();
 
     return (
         <header className="topbar">
@@ -38,6 +45,7 @@ export default function Topbar() {
                     <button
                         className="save-button"
                         onClick={saveLayout}
+                        disabled={isLoading || isSaving}
                         title="Save layout and open dashboard view"
                     >
                         <Save size={16} />
@@ -47,7 +55,7 @@ export default function Topbar() {
             </div>
             {!isPreview && (
                 <span className="topbar-status" role="status" aria-live="polite">
-                    {saveMessage || "Browser-only saving - no backend"}
+                    {saveMessage}
                 </span>
             )}
         </header>

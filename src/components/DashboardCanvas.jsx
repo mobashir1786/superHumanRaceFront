@@ -69,11 +69,12 @@ function CanvasElement({ element, elements, index }) {
                     top: element.y,
                     width: element.width,
                     height: element.height,
+                    order: element.y,
                     zIndex: index + 1,
                 }}
             >
                 <div
-                    className={`canvas-element ${element.type === "section" ? "section-element" : ""
+                    className={`canvas-element element-${element.type} ${element.type === "section" ? "section-element" : ""
                         } ${chartTypes.includes(element.type) ? "chart-canvas-element" : ""}`}
                     style={
                         element.type === "section"
@@ -128,7 +129,7 @@ function CanvasElement({ element, elements, index }) {
             }}
         >
             <div
-                className={`canvas-element ${element.type === "section" ? "section-element" : ""
+                className={`canvas-element element-${element.type} ${element.type === "section" ? "section-element" : ""
                     } ${chartTypes.includes(element.type) ? "chart-canvas-element" : ""
                     } ${selectedId === element.id ? "selected" : ""}`}
                 style={

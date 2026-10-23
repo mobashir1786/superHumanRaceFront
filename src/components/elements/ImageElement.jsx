@@ -2,12 +2,13 @@
 import { useRef } from "react";
 import { ImagePlus, Upload, X } from "lucide-react";
 import { useDashboard } from "../../context/useDashboard";
+import { uploadDashboardImage } from "../../services/dashboardApi";
 
 export default function ImageElement({ element }) {
     const fileInputRef = useRef(null);
-    const { updateElement, isPreview } = useDashboard();
+    const { updateElement, isPreview, setSaveMessage } = useDashboard();
 
-    const handleImageUpload = (event) => {
+    const handleImageUpload = async (event) => {
         const file = event.target.files?.[0];
 
         if (!file) return;
@@ -24,24 +25,20 @@ export default function ImageElement({ element }) {
             return;
         }
 
-        const reader = new FileReader();
-
-        reader.onload = () => {
-            if (typeof reader.result !== "string") {
-                alert("The selected image could not be read.");
-                return;
-            }
-
+        try {
+            setSaveMessage("Uploading image...");
+            const uploaded = await uploadDashboardImage(file);
             updateElement(element.id, {
-                content: reader.result,
-                alt: file.name,
-                fileName: file.name,
+                content: uploaded.url,
+                alt: uploaded.fileName || file.name,
+                fileName: uploaded.fileName || file.name,
             });
-        };
-        reader.onerror = () => alert("The selected image could not be read.");
-
-        reader.readAsDataURL(file);
-        event.target.value = "";
+            setSaveMessage("Image uploaded. Save the dashboard to keep the layout.");
+        } catch (error) {
+            setSaveMessage(`Could not upload image: ${error.message}`);
+        } finally {
+            event.target.value = "";
+        }
     };
 
     const removeImage = () => {
