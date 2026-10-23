@@ -18,17 +18,19 @@ A React/Vite dashboard editor with draggable and resizable sections, text, image
    npm run dev
    ```
 
-4. Sign in using the administrator password configured on the PHP server.
+4. The shared dashboard opens without sign-in. Anyone who can access it can edit its contents.
 
 ## Deploy frontend to Vercel
 
-Import this repository in Vercel using the Vite preset, then configure the project environment variable:
+Import this repository in Vercel using the Vite preset. Production builds default to the InfinityFree API URL; if using another PHP host, configure:
 
 ```dotenv
-VITE_DASHBOARD_API_URL=https://your-php-host.example/api
+VITE_DASHBOARD_API_URL=https://your-php-host.example/dashboard-server/api
 ```
 
-Set that API URL for the Vercel deployment environment and redeploy. On the PHP host, allow the exact Vercel origin in `DASHBOARD_ALLOWED_ORIGINS` or the server-only `config/database.php` `allowed_origins` setting. The PHP/MySQL backend must be deployed separately; Vercel hosts this React frontend, not this LAMP API.
+The PHP/MySQL backend must be deployed separately; Vercel hosts this React frontend, not this LAMP API. The backend allows the production Vercel origin by default; set `DASHBOARD_ALLOWED_ORIGINS` or the server-only `config/database.php` `allowed_origins` setting if the frontend uses another domain.
+
+This deployment has one public shared dashboard and no user accounts. Anyone can view, change, or replace its layout and upload images. Do not use it for private or sensitive content.
 
 ## Validation
 
