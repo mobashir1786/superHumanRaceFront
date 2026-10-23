@@ -58,7 +58,34 @@ function renderElementContent(element, elements) {
 }
 
 function CanvasElement({ element, elements, index }) {
-    const { selectedId, setSelectedId, updateElement } = useDashboard();
+    const { selectedId, setSelectedId, updateElement, isPreview } = useDashboard();
+
+    if (isPreview) {
+        return (
+            <div
+                className="dashboard-element-preview"
+                style={{
+                    left: element.x,
+                    top: element.y,
+                    width: element.width,
+                    height: element.height,
+                    zIndex: index + 1,
+                }}
+            >
+                <div
+                    className={`canvas-element ${element.type === "section" ? "section-element" : ""
+                        } ${chartTypes.includes(element.type) ? "chart-canvas-element" : ""}`}
+                    style={
+                        element.type === "section"
+                            ? { backgroundColor: element.backgroundColor || "#f8fafc" }
+                            : undefined
+                    }
+                >
+                    {renderElementContent(element, elements)}
+                </div>
+            </div>
+        );
+    }
 
     return (
         <Rnd
@@ -117,7 +144,7 @@ function CanvasElement({ element, elements, index }) {
 }
 
 export default function DashboardCanvas() {
-    const { elements, setSelectedId } = useDashboard();
+    const { elements, setSelectedId, isPreview } = useDashboard();
     const topLevelElements = elements.filter((element) => !element.parentId);
     const contentBottom = topLevelElements.reduce(
         (bottom, element) => Math.max(bottom, element.y + element.height + 32),
@@ -126,19 +153,25 @@ export default function DashboardCanvas() {
 
     return (
         <div
-            className="dashboard-canvas"
+            className={`dashboard-canvas ${isPreview ? "dashboard-preview" : ""}`}
             style={
                 topLevelElements.length
                     ? { minHeight: `max(calc(100vh - 112px), ${contentBottom}px)` }
                     : undefined
             }
-            onClick={() => setSelectedId(null)}
+            onClick={() => {
+                if (!isPreview) setSelectedId(null);
+            }}
         >
             {topLevelElements.length === 0 ? (
                 <div className="empty-state">
                     <div className="empty-icon">+</div>
                     <h2>Your dashboard starts here</h2>
-                    <p>Add a text, image, chart, or section using the left sidebar.</p>
+                    <p>
+                        {isPreview
+                            ? "This dashboard is ready for your content."
+                            : "Add a text, image, chart, or section using the left sidebar."}
+                    </p>
                 </div>
             ) : (
                 topLevelElements.map((element, index) => (

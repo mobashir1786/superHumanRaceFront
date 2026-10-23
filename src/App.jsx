@@ -4,21 +4,24 @@ import Topbar from "./components/Topbar";
 import Sidebar from "./components/Sidebar";
 import DashboardCanvas from "./components/DashboardCanvas";
 import PropertiesPanel from "./components/PropertiesPanel";
+import { useDashboard } from "./context/useDashboard";
 import "./App.css";
 
 function DashboardEditor() {
+  const { isPreview } = useDashboard();
+
   return (
-    <div className="app-shell">
+    <div className={`app-shell ${isPreview ? "preview-app-shell" : ""}`}>
       <Topbar />
 
-      <div className="editor-layout">
-        <Sidebar />
+      <div className={`editor-layout ${isPreview ? "dashboard-view-layout" : ""}`}>
+        {!isPreview && <Sidebar />}
 
-        <main className="canvas-area">
+        <main className={`canvas-area ${isPreview ? "preview-canvas-area" : ""}`}>
           <DashboardCanvas />
         </main>
 
-        <PropertiesPanel />
+        {!isPreview && <PropertiesPanel />}
       </div>
     </div>
   );

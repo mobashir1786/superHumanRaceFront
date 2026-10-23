@@ -5,7 +5,7 @@ import { useDashboard } from "../../context/useDashboard";
 
 export default function ImageElement({ element }) {
     const fileInputRef = useRef(null);
-    const { updateElement } = useDashboard();
+    const { updateElement, isPreview } = useDashboard();
 
     const handleImageUpload = (event) => {
         const file = event.target.files?.[0];
@@ -63,22 +63,24 @@ export default function ImageElement({ element }) {
                         draggable={false}
                     />
 
-                    <div className="image-actions">
-                        <button
-                            type="button"
-                            onClick={() => fileInputRef.current?.click()}
-                        >
-                            <Upload size={15} />
-                            Replace
-                        </button>
+                    {!isPreview && (
+                        <div className="image-actions">
+                            <button
+                                type="button"
+                                onClick={() => fileInputRef.current?.click()}
+                            >
+                                <Upload size={15} />
+                                Replace
+                            </button>
 
-                        <button type="button" onClick={removeImage}>
-                            <X size={15} />
-                            Remove
-                        </button>
-                    </div>
+                            <button type="button" onClick={removeImage}>
+                                <X size={15} />
+                                Remove
+                            </button>
+                        </div>
+                    )}
                 </>
-            ) : (
+            ) : !isPreview ? (
                 <button
                     type="button"
                     className="image-upload-placeholder"
@@ -89,15 +91,19 @@ export default function ImageElement({ element }) {
                     <span>PNG, JPG, GIF or WebP</span>
                     <span>Maximum size: 5 MB</span>
                 </button>
+            ) : (
+                <div className="image-preview-empty">No image selected</div>
             )}
 
-            <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                hidden
-                onChange={handleImageUpload}
-            />
+            {!isPreview && (
+                <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    hidden
+                    onChange={handleImageUpload}
+                />
+            )}
         </div>
     );
 }

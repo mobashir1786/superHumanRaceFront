@@ -22,10 +22,15 @@ function loadStoredLayout() {
             throw new Error("The saved layout has an invalid format.");
         }
 
-        return { elements, message: "" };
+        return {
+            elements,
+            isPreview: !Array.isArray(parsedLayout) && parsedLayout.isPreview === true,
+            message: "",
+        };
     } catch (error) {
         return {
             elements: [],
+            isPreview: false,
             message: `Could not load the saved layout: ${error.message}`,
         };
     }
@@ -40,6 +45,7 @@ export function DashboardProvider({ children }) {
     const [elements, setElements] = useState(initialLayout.elements);
     const [selectedId, setSelectedId] = useState(null);
     const [saveMessage, setSaveMessage] = useState(initialLayout.message);
+    const [isPreview, setIsPreview] = useState(initialLayout.isPreview);
 
     const addElement = (type) => {
         const id = crypto.randomUUID();
@@ -174,9 +180,11 @@ export function DashboardProvider({ children }) {
         try {
             localStorage.setItem(
                 STORAGE_KEY,
-                JSON.stringify({ version: 1, elements })
+                JSON.stringify({ version: 1, elements, isPreview: true })
             );
             setSaveMessage("Layout saved in this browser.");
+            setIsPreview(true);
+            setSelectedId(null);
         } catch (error) {
             setSaveMessage(`Could not save the layout: ${error.message}`);
         }
@@ -188,7 +196,9 @@ export function DashboardProvider({ children }) {
                 elements,
                 selectedId,
                 saveMessage,
+                isPreview,
                 setSelectedId,
+                setIsPreview,
                 addElement,
                 updateElement,
                 deleteElement,
