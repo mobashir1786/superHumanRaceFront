@@ -69,6 +69,9 @@ export async function uploadDashboardImage(file) {
 
     return {
         ...payload,
-        url: new URL(payload.url, `${API_BASE_URL}/`).toString(),
+        url: new URL(
+            payload.url,
+            new URL(`${API_BASE_URL}/`, window.location.origin)
+        ).toString(),
     };
 }
