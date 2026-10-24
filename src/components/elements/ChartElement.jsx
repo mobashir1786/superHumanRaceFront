@@ -1,4 +1,5 @@
 
+import { useLayoutEffect, useRef } from "react";
 import {
     Chart as ChartJS,
     CategoryScale,
@@ -27,9 +28,29 @@ ChartJS.register(
 );
 
 export default function ChartElement({ element }) {
+    const chartRef = useRef(null);
+    const containerRef = useRef(null);
     const isBarChart = element.type === "barChart";
     const labels = element.chartLabels ?? ["Jan", "Feb", "Mar", "Apr", "May", "Jun"];
     const values = element.chartValues ?? [120, 190, 150, 250, 210, 300];
+
+    useLayoutEffect(() => {
+        const container = containerRef.current;
+        if (!container) return undefined;
+
+        const resizeChart = () => {
+            const chart = chartRef.current;
+            if (chart && container.clientWidth && container.clientHeight) {
+                chart.resize(container.clientWidth, container.clientHeight);
+            }
+        };
+
+        resizeChart();
+        const observer = new ResizeObserver(resizeChart);
+        observer.observe(container);
+
+        return () => observer.disconnect();
+    }, []);
 
     const data = {
         labels,
@@ -52,7 +73,7 @@ export default function ChartElement({ element }) {
     };
 
     const options = {
-        responsive: true,
+        responsive: false,
         maintainAspectRatio: false,
         animation: {
             duration: 300,
@@ -75,11 +96,11 @@ export default function ChartElement({ element }) {
     };
 
     return (
-        <div className="chart-element">
+        <div className="chart-element" ref={containerRef}>
             {isBarChart ? (
-                <Bar data={data} options={options} />
+                <Bar ref={chartRef} data={data} options={options} />
             ) : (
-                <Line data={data} options={options} />
+                <Line ref={chartRef} data={data} options={options} />
             )}
         </div>
     );

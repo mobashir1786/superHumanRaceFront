@@ -101,7 +101,7 @@ button:disabled {
 .preview-canvas-area {
     min-height: calc(100vh - 64px);
     padding: 32px;
-    overflow: auto;
+    /* overflow: auto; */
 }
 
 .sidebar,
@@ -236,7 +236,7 @@ button:disabled {
 .canvas-area {
     min-width: 0;
     padding: 24px;
-    overflow: auto;
+    /* overflow: auto; */
 }
 
 .dashboard-canvas {
@@ -603,7 +603,8 @@ button:disabled {
 
 .chart-element {
     width: 100%;
-    flex: 1;
+    min-width: 0;
+    flex: 1 1 0;
     min-height: 100px;
     position: relative;
 }
@@ -611,6 +612,7 @@ button:disabled {
 .canvas-element.chart-canvas-element {
     display: flex;
     flex-direction: column;
+    min-width: 0;
 }
 
 
@@ -666,12 +668,11 @@ button:disabled {
         display: flex;
         flex-direction: column;
         gap: 16px;
-        width: 100%;
+        width: 100% !important;
         min-height: 0 !important;
-        overflow: visible;
     }
 
-    .dashboard-preview > .dashboard-element-preview {
+    .dashboard-preview>.dashboard-element-preview {
         position: relative !important;
         inset: auto !important;
         width: 100% !important;
@@ -697,7 +698,7 @@ button:disabled {
         overflow: visible;
     }
 
-    .dashboard-preview .section-content > .dashboard-element-preview {
+    .dashboard-preview .section-content>.dashboard-element-preview {
         position: relative !important;
         inset: auto !important;
         width: 100% !important;

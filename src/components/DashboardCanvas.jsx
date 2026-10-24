@@ -1,3 +1,4 @@
+import { useLayoutEffect, useRef, useState } from "react";
 import { Rnd } from "react-rnd";
 import { useDashboard } from "../context/useDashboard";
 import ChartElement from "./elements/ChartElement";
@@ -146,20 +147,66 @@ function CanvasElement({ element, elements, index }) {
 
 export default function DashboardCanvas() {
     const { elements, setSelectedId, isPreview } = useDashboard();
+    const canvasRef = useRef(null);
+    const [previewScale, setPreviewScale] = useState(1);
     const topLevelElements = elements.filter((element) => !element.parentId);
+    const contentRight = topLevelElements.reduce(
+        (right, element) => Math.max(right, element.x + element.width),
+        0
+    );
+    const layoutWidth = topLevelElements.length ? contentRight + 32 : 500;
     const contentBottom = topLevelElements.reduce(
         (bottom, element) => Math.max(bottom, element.y + element.height + 32),
         0
     );
 
+    useLayoutEffect(() => {
+        if (!isPreview || !canvasRef.current) {
+            return undefined;
+        }
+
+        const container = canvasRef.current.parentElement;
+        const updateScale = () => {
+            if (window.innerWidth <= 560) {
+                setPreviewScale(1);
+                return;
+            }
+
+            const styles = window.getComputedStyle(container);
+            const availableWidth =
+                container.clientWidth -
+                parseFloat(styles.paddingLeft) -
+                parseFloat(styles.paddingRight);
+            const nextScale = availableWidth > 0 ? availableWidth / layoutWidth : 1;
+
+            setPreviewScale((currentScale) =>
+                Math.abs(currentScale - nextScale) < 0.001 ? currentScale : nextScale
+            );
+        };
+
+        updateScale();
+        const observer = new ResizeObserver(updateScale);
+        observer.observe(container);
+
+        return () => observer.disconnect();
+    }, [isPreview, layoutWidth]);
+
     return (
         <div
+            ref={canvasRef}
             className={`dashboard-canvas ${isPreview ? "dashboard-preview" : ""}`}
-            style={
-                topLevelElements.length
+            style={{
+                ...(isPreview
+                    ? {
+                        width: `${layoutWidth}px`,
+                        transform: `scale(${previewScale})`,
+                        transformOrigin: "top left",
+                    }
+                    : {}),
+                ...(topLevelElements.length
                     ? { minHeight: `max(calc(100vh - 112px), ${contentBottom}px)` }
-                    : undefined
-            }
+                    : {}),
+            }}
             onClick={() => {
                 if (!isPreview) setSelectedId(null);
             }}

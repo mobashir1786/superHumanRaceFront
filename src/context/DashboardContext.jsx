@@ -177,9 +177,22 @@ export function DashboardProvider({ children }) {
         try {
             setSaveMessage("Saving dashboard to MySQL...");
             await saveDashboard(elements);
-            setSaveMessage("Dashboard saved to MySQL.");
+
+            setSaveMessage("Dashboard saved. Reloading the saved layout...");
+            let dashboard;
+            try {
+                dashboard = await fetchDashboard();
+            } catch (error) {
+                setSaveMessage(
+                    `Dashboard saved, but could not reload it: ${error.message}`
+                );
+                return;
+            }
+
+            setElements(dashboard.elements);
             setIsPreview(true);
             setSelectedId(null);
+            setSaveMessage("Dashboard saved and reloaded from MySQL.");
         } catch (error) {
             setSaveMessage(`Could not save dashboard: ${error.message}`);
         } finally {

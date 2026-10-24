@@ -1,5 +1,5 @@
 
-import { Save, Undo2, Redo2, LayoutDashboard, Pencil } from "lucide-react";
+import { Save, LayoutDashboard, Pencil } from "lucide-react";
 import { useDashboard } from "../context/useDashboard";
 
 export default function Topbar() {
@@ -20,18 +20,6 @@ export default function Topbar() {
             </div>
 
             <div className="topbar-actions">
-                {!isPreview && (
-                    <>
-                        <button className="icon-button" title="Undo" disabled>
-                            <Undo2 size={18} />
-                        </button>
-
-                        <button className="icon-button" title="Redo" disabled>
-                            <Redo2 size={18} />
-                        </button>
-                    </>
-                )}
-
                 {isPreview ? (
                     <button
                         className="save-button"
